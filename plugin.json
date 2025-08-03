@@ -1,67 +1,72 @@
 {
-    "id": "todo_write",
-    "code": "function todo_write() { return \"List updated successfully\" }",
-    "uuid": "0ad04044-28f4-4e45-bc2a-302c3cb7c5c9",
-    "emoji": "📝",
-    "title": "Todo List",
-    "iconURL": "https://raw.githubusercontent.com/TypingMind/plugin-todo-list/refs/heads/main/icon.png",
-    "mcpDetails": null,
-    "openaiSpec": {
-        "name": "todo_write",
-        "parameters": {
+  "id": "todo_write",
+  "code": "function todo_write() { return \"List updated successfully\" }",
+  "uuid": "0ad04044-28f4-4e45-bc2a-302c3cb7c5c9",
+  "emoji": "📝",
+  "title": "Todo List",
+  "iconURL": "https://raw.githubusercontent.com/TypingMind/plugin-todo-list/refs/heads/main/icon.png",
+  "mcpDetails": null,
+  "openaiSpec": {
+    "name": "todo_write",
+    "parameters": {
+      "type": "object",
+      "required": [
+        "merge",
+        "todos"
+      ],
+      "properties": {
+        "merge": {
+          "type": "boolean",
+          "description": "Whether to merge the todos with the existing todos. If true, the todos will be merged into the existing todos based on the id field. You can leave unchanged properties undefined. If false, the new todos will replace the existing todos."
+        },
+        "todos": {
+          "type": "array",
+          "items": {
             "type": "object",
             "required": [
-                "merge",
-                "todos"
+              "content",
+              "status",
+              "id"
             ],
             "properties": {
-                "merge": {
-                    "type": "boolean",
-                    "description": "Whether to merge the todos with the existing todos. If true, the todos will be merged into the existing todos based on the id field. You can leave unchanged properties undefined. If false, the new todos will replace the existing todos."
-                },
-                "todos": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "required": [
-                            "content",
-                            "status",
-                            "id"
-                        ],
-                        "properties": {
-                            "id": {
-                                "type": "string",
-                                "description": "Unique identifier for the TODO item"
-                            },
-                            "status": {
-                                "enum": [
-                                    "pending",
-                                    "in_progress",
-                                    "completed",
-                                    "cancelled"
-                                ],
-                                "type": "string",
-                                "description": "The current status of the TODO item"
-                            },
-                            "content": {
-                                "type": "string",
-                                "description": "The description/content of the TODO item"
-                            }
-                        }
-                    },
-                    "minItems": 2,
-                    "description": "Array of TODO items to write to the workspace"
-                }
+              "id": {
+                "type": "string",
+                "description": "Unique identifier for the TODO item"
+              },
+              "status": {
+                "enum": [
+                  "pending",
+                  "in_progress",
+                  "completed",
+                  "cancelled"
+                ],
+                "type": "string",
+                "description": "The current status of the TODO item"
+              },
+              "content": {
+                "type": "string",
+                "description": "The description/content of the TODO item"
+              }
             }
+          },
+          "minItems": 2,
+          "description": "Array of TODO items to write to the workspace"
         },
-        "description": "Use this tool to create and manage a structured task list for your current research session. This helps track progress, organize complex investigations, and demonstrate thoroughness.\n\n### When to Use This Tool\n\nUse proactively for:\n1. Complex multi-step research (3+ distinct phases)\n2. Non-trivial investigations requiring careful planning\n3. User explicitly requests research todo list\n4. User provides multiple research topics (numbered/comma-separated)\n5. After receiving new research instructions - capture requirements as todos (use merge=false to add new ones)\n6. After completing research phases - mark complete with merge=true and add follow-ups\n7. When starting new research areas - mark as in_progress (ideally only one at a time)\n\n### When NOT to Use\n\nSkip for:\n1. Single, straightforward questions\n2. Trivial lookups with no organizational benefit\n3. Research completable in < 3 trivial steps\n4. Purely conversational/clarification requests\n5. Don't add a task to verify findings unless asked, or you'll overfocus on validation\n\n### Examples\n\n<example>\n  User: Research the impact of climate change on Arctic wildlife\n  Assistant: *Creates todo list:*\n  1. Analyze temperature trends in Arctic regions\n  2. Identify key Arctic species and habitats\n  3. Review scientific studies on wildlife impacts\n  4. Synthesize findings and correlations\n<reasoning>\n  Multi-phase research with dependencies requiring systematic investigation.\n</reasoning>\n</example>\n\n<example>\n  User: Compare healthcare systems across Nordic countries\n  Assistant: *Creates todo list with specific items for each country's system, funding models, outcomes, and comparative analysis*\n\n<reasoning>\n  Complex comparative research requiring systematic tracking across multiple systems.\n</reasoning>\n</example>\n\n<example>\n  User: Investigate renewable energy adoption, economic impacts, policy frameworks, and future projections.\n  Assistant: *Creates todo list breaking down each research area into specific investigation tasks*\n\n<reasoning>\n  Multiple complex research areas provided as list requiring organized investigation management.\n</reasoning>\n</example>\n\n<example>\n  User: Research why my company's market share is declining - analyze competitors, market trends, customer feedback.\n  Assistant: *Creates todo list: 1) Competitor analysis, 2) Market trend research, 3) Customer sentiment analysis, 4) Internal factor review, 5) Strategic recommendations*\n\n<reasoning>\n  Business analysis requires multiple research phases across different data sources.\n</reasoning>\n</example>\n\n### Examples of When NOT to Use the Todo List\n\n<example>\n  User: What's the capital of France?\n  Assistant: The capital of France is Paris.\n\n<reasoning>\n  Single trivial factual lookup completed in one step.\n</reasoning>\n</example>\n\n<example>\n  User: Explain what photosynthesis is.\n  Assistant: Photosynthesis is the process by which plants convert sunlight into energy...\n\n<reasoning>\n  Informational request with no complex research investigation needed.\n</reasoning>\n</example>\n\n<example>\n  User: Find the current stock price of Apple.\n  Assistant: *Looks up current AAPL price* Apple (AAPL) is currently trading at...\n\n<reasoning>\n  Single straightforward data lookup with immediate results.\n</reasoning>\n</example>\n\n<example>\n  User: What does GDP stand for?\n  Assistant: GDP stands for Gross Domestic Product...\n\n<reasoning>\n  Simple definition request with no multi-step research required.\n</reasoning>\n</example>\n\n### Task States and Management\n\n1. **Research States:**\n  - pending: Not yet started\n  - in_progress: Currently investigating\n  - completed: Research finished successfully\n  - cancelled: No longer needed\n\n2. **Research Management:**\n  - Update status in real-time\n  - Mark complete IMMEDIATELY after finishing each phase\n  - Only ONE research area in_progress at a time\n  - Complete current investigations before starting new ones\n\n3. **Research Breakdown:**\n  - Create specific, actionable investigation items\n  - Break complex research into manageable phases\n  - Use clear, descriptive research objectives\n\nWhen in doubt, use this tool. Proactive research management demonstrates thoroughness and ensures complete investigation of requirements."
+        "explanation": {
+          "type": "string",
+          "description": "A short description of the action you take (e.g., \"Creating a plan...\", \"Started item X\",...)"
+        }
+      }
     },
-    "outputType": "respond_to_ai",
-    "oauthConfig": null,
-    "userSettings": null,
-    "overviewMarkdown": "",
-    "authenticationType": "AUTH_TYPE_NONE",
-    "implementationType": "javascript",
-    "dynamicContextEndpoints": [],
-    "sharedOAuthConnectionID": null
+    "description": "Use this tool to create and manage a structured task list for your current research session. This helps track progress, organize complex investigations, and demonstrate thoroughness.\n\n### When to Use This Tool\n\nUse proactively for:\n1. Complex multi-step research (3+ distinct phases)\n2. Non-trivial investigations requiring careful planning\n3. User explicitly requests research todo list\n4. User provides multiple research topics (numbered/comma-separated)\n5. After receiving new research instructions - capture requirements as todos (use merge=false to add new ones)\n6. After completing research phases - mark complete with merge=true and add follow-ups\n7. When starting new research areas - mark as in_progress (ideally only one at a time)\n\n### When NOT to Use\n\nSkip for:\n1. Single, straightforward questions\n2. Trivial lookups with no organizational benefit\n3. Research completable in < 3 trivial steps\n4. Purely conversational/clarification requests\n5. Don't add a task to verify findings unless asked, or you'll overfocus on validation\n\n### Examples\n\n<example>\n  User: Research the impact of climate change on Arctic wildlife\n  Assistant: *Creates todo list:*\n  1. Analyze temperature trends in Arctic regions\n  2. Identify key Arctic species and habitats\n  3. Review scientific studies on wildlife impacts\n  4. Synthesize findings and correlations\n<reasoning>\n  Multi-phase research with dependencies requiring systematic investigation.\n</reasoning>\n</example>\n\n<example>\n  User: Compare healthcare systems across Nordic countries\n  Assistant: *Creates todo list with specific items for each country's system, funding models, outcomes, and comparative analysis*\n\n<reasoning>\n  Complex comparative research requiring systematic tracking across multiple systems.\n</reasoning>\n</example>\n\n<example>\n  User: Investigate renewable energy adoption, economic impacts, policy frameworks, and future projections.\n  Assistant: *Creates todo list breaking down each research area into specific investigation tasks*\n\n<reasoning>\n  Multiple complex research areas provided as list requiring organized investigation management.\n</reasoning>\n</example>\n\n<example>\n  User: Research why my company's market share is declining - analyze competitors, market trends, customer feedback.\n  Assistant: *Creates todo list: 1) Competitor analysis, 2) Market trend research, 3) Customer sentiment analysis, 4) Internal factor review, 5) Strategic recommendations*\n\n<reasoning>\n  Business analysis requires multiple research phases across different data sources.\n</reasoning>\n</example>\n\n### Examples of When NOT to Use the Todo List\n\n<example>\n  User: What's the capital of France?\n  Assistant: The capital of France is Paris.\n\n<reasoning>\n  Single trivial factual lookup completed in one step.\n</reasoning>\n</example>\n\n<example>\n  User: Explain what photosynthesis is.\n  Assistant: Photosynthesis is the process by which plants convert sunlight into energy...\n\n<reasoning>\n  Informational request with no complex research investigation needed.\n</reasoning>\n</example>\n\n<example>\n  User: Find the current stock price of Apple.\n  Assistant: *Looks up current AAPL price* Apple (AAPL) is currently trading at...\n\n<reasoning>\n  Single straightforward data lookup with immediate results.\n</reasoning>\n</example>\n\n<example>\n  User: What does GDP stand for?\n  Assistant: GDP stands for Gross Domestic Product...\n\n<reasoning>\n  Simple definition request with no multi-step research required.\n</reasoning>\n</example>\n\n### Task States and Management\n\n1. **Research States:**\n  - pending: Not yet started\n  - in_progress: Currently investigating\n  - completed: Research finished successfully\n  - cancelled: No longer needed\n\n2. **Research Management:**\n  - Update status in real-time\n  - Mark complete IMMEDIATELY after finishing each phase\n  - Only ONE research area in_progress at a time\n  - Complete current investigations before starting new ones\n\n3. **Research Breakdown:**\n  - Create specific, actionable investigation items\n  - Break complex research into manageable phases\n  - Use clear, descriptive research objectives\n\nWhen in doubt, use this tool. Proactive research management demonstrates thoroughness and ensures complete investigation of requirements."
+  },
+  "outputType": "respond_to_ai",
+  "oauthConfig": null,
+  "userSettings": null,
+  "overviewMarkdown": "",
+  "authenticationType": "AUTH_TYPE_NONE",
+  "implementationType": "javascript",
+  "dynamicContextEndpoints": [],
+  "sharedOAuthConnectionID": null,
+  "statusFieldName": "explanation"
 }
